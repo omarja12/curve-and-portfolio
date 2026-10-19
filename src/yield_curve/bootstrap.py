@@ -150,13 +150,12 @@ class YieldCurve:
         """
         s = self.spot_rates()
         maturities = self.bonds[:, 0]
-        # f(t, t+1) = ( (1+s_{t+1})^{t+1} ) / ( (1+s_t)^{t} ) - 1
-        # Using approximation from the original: based on spot rates and maturities
+        # f(t, t+1) = (1 + s_{t+1})^(t+1) / (1 + s_t)^t - 1, exact under annual
+        # compounding. s[i] is the spot rate for maturity maturities[i].
         n = self.bonds.shape[0]
         f = np.zeros(n - 1)
         for t in range(1, n):
-            # (1 + s_t)^t and (1 + s_{t+1})^{t+1}
-            num = (1 + s[t]) ** maturities[t]  # s[t] is spot for year t+1? careful
+            num = (1 + s[t]) ** maturities[t]
             den = (1 + s[t - 1]) ** maturities[t - 1]
             f[t - 1] = (num / den) - 1
         return f
